@@ -1,10 +1,16 @@
 const { body, validationResult } = require('express-validator');
+const { sendError } = require('../utils/response');
 
 // Middleware เช็ค error จาก validation
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
+    const formattedErrors = errors.array().map((err) => ({
+      field: err.path,
+      message: err.msg,
+    }));
+
+    return sendError(res, 'Validation failed', 400, formattedErrors);
   }
   next();
 };

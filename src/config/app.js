@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 const errorHandler = require('../middlewares/errorHandler');
+const { sendError } = require('../utils/response');
 const app = express();
 
 // ─────────────────────────────────────────
@@ -41,7 +42,7 @@ app.get('/health', (req, res) => {
 //  404 Handler
 // ───────────────────────────────────────── 
 app.use((req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found' });
+  return sendError(res, 'Route not found', 404);
 });
 
 // ─────────────────────────────────────────

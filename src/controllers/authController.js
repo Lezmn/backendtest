@@ -1,5 +1,5 @@
 const authService = require('../services/authService');
-const { sendSuccess } = require('../utils/response');
+const { sendSuccess, sendError } = require('../utils/response');
 
 // Register
 exports.register = async (req, res, next) => {
@@ -47,7 +47,7 @@ exports.logout = async (req, res, next) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
-      return res.status(400).json({ success: false, error: 'No token provided' });
+      return sendError(res, 'No token provided', 400);
     }
 
     await authService.logout(token);

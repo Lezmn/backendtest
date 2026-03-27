@@ -1,39 +1,35 @@
+const { sendError } = require('../utils/response');
+
 const errorHandler = (err, req, res, next) => {
   console.error(`[${new Date().toISOString()}] Error:`, err);
 
   // MySQL Errors
   if (err.code === 'ER_DUP_ENTRY') {
-    return res.status(400).json({ success: false, error: 'Duplicate entry' });
+    return sendError(res, 'Duplicate entry', 400);
   }
 
   // JWT Errors
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({ success: false, error: 'Invalid token' });
+    return sendError(res, 'Invalid token', 401);
   }
 
   if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ success: false, error: 'Token expired' });
+    return sendError(res, 'Token expired', 401);
   }
 
   // AppError (custom)
   if (err.status) {
-    return res.status(err.status).json({ success: false, error: err.message });
+    return sendError(res, err.message, err.status);
   }
-
-  // Default - show more details in development
-  const errorResponse = {
-    success: false,
-    error: 'Internal Server Error',
-  };
 
   if (process.env.NODE_ENV === 'development') {
-    errorResponse.details = err.message;
-    errorResponse.code = err.code;
+    const details = [
+      { field: 'details', message: err.message || 'Unknown error' },
+    ];
+    return sendError(res, 'Internal Server Error', 500, details);
   }
 
-  res.status(500).json(errorResponse);
+  return sendError(res, 'Internal Server Error', 500);
 };
 
 module.exports = errorHandler;
-
-module.exports = errorHandler; 
