@@ -8,6 +8,23 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
 const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 
+let blacklistTableReady;
+
+const ensureBlacklistTable = async () => {
+  if (!blacklistTableReady) {
+    blacklistTableReady = db.query(`
+      CREATE TABLE IF NOT EXISTS token_blacklist (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        token VARCHAR(1024) NOT NULL UNIQUE,
+        expires_at DATETIME NOT NULL,
+        INDEX idx_token_blacklist_expires_at (expires_at)
+      )
+    `);
+  }
+
+  await blacklistTableReady;
+};
+
 exports.register = async ({ name, email, password }) => {
   const [exist] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
   if (exist.length) throw new AppError('Email already exists', 409);

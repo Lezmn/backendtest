@@ -1,8 +1,18 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const { validateRegister, validateLogin, validateRefresh } = require('../middlewares/validate');
 const { protect } = require('../middlewares/authMiddleware');
+const { sendError } = require('../utils/response');
+
+const loginLimiter = rateLimit({
+	windowMs: 60 * 1000,
+	max: 5,
+	standardHeaders: true,
+	legacyHeaders: false,
+	handler: (req, res) => sendError(res, 'Too many login attempts. Please try again in 1 minute.', 429),
+});
 
 /**
  * @swagger
@@ -74,8 +84,10 @@ router.post('/register', validateRegister, authController.register);
  *         description: เข้าสู่ระบบสำเร็จ
  *       401:
  *         description: Email หรือ Password ผิด
+ *       429:
+ *         description: Login เกิน 5 ครั้งต่อนาที
  */
-router.post('/login', validateLogin, authController.login);
+router.post('/login', loginLimiter, validateLogin, authController.login);
 
 /**
  * @swagger

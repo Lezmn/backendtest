@@ -9,10 +9,9 @@ exports.sendError = (res, message, status = 500, errors = undefined) => {
   const payload = {
     success: false,
     message,
-    errors: [] ,
+    errors,
     timestamp: new Date().toISOString(),
   };
-
     if (errors && errors.length) {
     payload.errors = errors;
   }

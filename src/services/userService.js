@@ -44,7 +44,6 @@ exports.getAll = async ({
       totalPages: Math.ceil(total / limit),
       totalItems: total,
       itemsPerPage: Number(limit),
-      
     },
   };
 };
@@ -71,7 +70,12 @@ exports.update = async (id, { name, email }) => {
 
 exports.remove = async (id) => {
   await exports.getById(id);
+  const [rows] = await db.query(
+    'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
+    [id]
+  );
   await db.query('DELETE FROM users WHERE id = ?', [id]);
+  return { ...rows[0], message: 'User deleted successfully' };
 };
 
 exports.updateStatus = async (id, isActive) => {

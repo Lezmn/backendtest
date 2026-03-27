@@ -30,8 +30,8 @@ exports.update = async (req, res, next) => {
 
 exports.remove = async (req, res, next) => {
   try {
-    await userService.remove(req.params.id);
-    sendSuccess(res, null, 204);
+    const result = await userService.remove(req.params.id);
+    sendSuccess(res, result);
   } catch (err) {
     next(err);
   }
