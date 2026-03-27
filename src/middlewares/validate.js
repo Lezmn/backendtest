@@ -1,4 +1,5 @@
 const { body, validationResult } = require('express-validator');
+const db = require('../config/db');
 const { sendError } = require('../utils/response');
 
 // Middleware เช็ค error จาก validation
@@ -18,15 +19,28 @@ const validate = (req, res, next) => {
 // Validate Register
 exports.validateRegister = [
   body('name')
-    .notEmpty().withMessage('Name is required'),
+    .notEmpty().withMessage('Name is required')
+    .isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email')
+    .isEmail().withMessage('Invalid email format')
     .trim()
-    .customSanitizer((value) => value.toLowerCase()),
+    .customSanitizer((value) => value.toLowerCase())
+    .custom(async (value) => {
+      const [rows] = await db.query('SELECT id FROM users WHERE email = ? LIMIT 1', [value]);
+      if (rows.length) {
+        throw new Error('Email already exists');
+      }
+      return true;
+    }),
   body('password')
     .notEmpty().withMessage('Password is required')
-    .isLength({ min: 6 }).withMessage('Password min 6 characters'),
+    .isLength({ min: 8 }).withMessage('Must be at least 8 characters')
+    .matches(/[A-Za-z]/).withMessage('Password must contain at least one letter')
+    .matches(/\d/).withMessage('Password must contain at least one number'),
+  body('role')
+    .optional()
+    .isIn(['admin', 'user']).withMessage('Role must be admin or user'),
   validate,
 ];
 
@@ -34,7 +48,7 @@ exports.validateRegister = [
 exports.validateLogin = [
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email')
+    .isEmail().withMessage('Invalid email format')
     .trim()
     .customSanitizer((value) => value.toLowerCase()),
   body('password')
@@ -50,10 +64,11 @@ exports.validateRefresh = [
   validate,
 ];
 
+// Validate Logout
 exports.validateLogout = [
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email')
+    .isEmail().withMessage('Invalid email format')
     .trim()
     .customSanitizer((value) => value.toLowerCase()),
   body('password')
@@ -64,12 +79,27 @@ exports.validateLogout = [
 // Validate Update User
 exports.validateUpdateUser = [
   body('name')
-    .notEmpty().withMessage('Name is required'),
+    .notEmpty().withMessage('Name is required')
+    .isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email')
+    .isEmail().withMessage('Invalid email format')
     .trim()
-    .customSanitizer((value) => value.toLowerCase()),
+    .customSanitizer((value) => value.toLowerCase())
+    .custom(async (value, { req }) => {
+      const [rows] = await db.query('SELECT id FROM users WHERE email = ? AND id <> ? LIMIT 1', [
+        value,
+        Number(req.params.id) || 0,
+      ]);
+
+      if (rows.length) {
+        throw new Error('Email already exists');
+      }
+      return true;
+    }),
+  body('role')
+    .optional()
+    .isIn(['admin', 'user']).withMessage('Role must be admin or user'),
   validate,
 ];
 
