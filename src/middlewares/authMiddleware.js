@@ -36,9 +36,27 @@ exports.protect = async (req, res, next) => {
 
 // ตรวจสอบ Role
 exports.authorize = (...roles) => (req, res, next) => {
+  if (!req.user) {
+    return sendError(res, 'Unauthorized', 401);
+  }
+
   if (!roles.includes(req.user.role)) {
     return sendError(res, 'Forbidden', 403);
   }
   next();
+};
+
+// อนุญาตเฉพาะ admin หรือเจ้าของ resource ตาม user id
+exports.authorizeAdminOrSelf = (req, res, next) => {
+  if (!req.user) {
+    return sendError(res, 'Unauthorized', 401);
+  }
+
+  const targetUserId = Number(req.params.id);
+  if (req.user.role === 'admin' || req.user.id === targetUserId) {
+    return next();
+  }
+
+  return sendError(res, 'Forbidden', 403);
 };
 

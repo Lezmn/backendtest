@@ -8,11 +8,11 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "jest --forceExit",
+    "test": "jest --runInBand --forceExit",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "migrate": "node src/config/migrate.js",
-    "seed": "node src/config/seed.js"
+    "migrate": "node migrate/migrate.js",
+    "seed": "node seeds/seed.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -8,6 +8,14 @@ module.exports = {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
+  "testEnvironment": "node",
+  "testTimeout": 15000,
+  "setupFiles": ["dotenv/config"],
+  "testEnvironmentOptions": {
+    "env": {
+      "NODE_ENV": "test"
+    }
+  },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

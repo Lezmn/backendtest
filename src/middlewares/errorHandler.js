@@ -5,7 +5,19 @@ const errorHandler = (err, req, res, next) => {
 
   // MySQL Errors
   if (err.code === 'ER_DUP_ENTRY') {
-    return sendError(res, 'Duplicate entry', 400);
+    return sendError(res, 'Duplicate entry', 409);
+  }
+
+  if (['ER_BAD_NULL_ERROR', 'ER_TRUNCATED_WRONG_VALUE', 'ER_PARSE_ERROR', 'ER_NO_DEFAULT_FOR_FIELD'].includes(err.code)) {
+    return sendError(res, 'Bad request', 400);
+  }
+
+  if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+    return sendError(res, 'Referenced resource not found', 404);
+  }
+
+  if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+    return sendError(res, 'Conflict: resource is still referenced', 409);
   }
 
   // JWT Errors
@@ -17,9 +29,14 @@ const errorHandler = (err, req, res, next) => {
     return sendError(res, 'Token expired', 401);
   }
 
+  // Invalid JSON body
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return sendError(res, 'Invalid JSON payload', 400);
+  }
+
   // AppError (custom)
-  if (err.status) {
-    return sendError(res, err.message, err.status);
+  if (err.status || err.statusCode) {
+    return sendError(res, err.message, err.status || err.statusCode);
   }
 
   if (process.env.NODE_ENV === 'development') {

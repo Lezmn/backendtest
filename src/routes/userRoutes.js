@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { protect, authorize } = require('../middlewares/authMiddleware');
+const { protect, authorize, authorizeAdminOrSelf } = require('../middlewares/authMiddleware');
 const { validateUpdateUser,validateUpdateUserStatus} = require('../middlewares/validate');
 
 /**
@@ -60,7 +60,7 @@ router.get('/', protect,authorize('admin'),userController.getAll);
  *       404:
  *         description: ไม่พบ User
  */
-router.get('/:id', protect, authorize('admin', 'user'), userController.getById);
+router.get('/:id', protect, authorizeAdminOrSelf, userController.getById);
 
 /**
  * @swagger
@@ -91,7 +91,7 @@ router.get('/:id', protect, authorize('admin', 'user'), userController.getById);
  *       200:
  *         description: อัปเดตสำเร็จ
  */
-router.put('/:id', protect, authorize('admin', 'user'), validateUpdateUser, userController.update);
+router.put('/:id', protect, authorizeAdminOrSelf, validateUpdateUser, userController.update);
 
 /**
  * @swagger

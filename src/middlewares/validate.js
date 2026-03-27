@@ -11,6 +11,14 @@ const validate = (req, res, next) => {
       message: err.msg,
     }));
 
+    const hasConflictError = formattedErrors.some((err) =>
+      /already exists/i.test(err.message)
+    );
+
+    if (hasConflictError) {
+      return sendError(res, 'Conflict', 409, formattedErrors);
+    }
+
     return sendError(res, 'Validation failed', 400, formattedErrors);
   }
   next();

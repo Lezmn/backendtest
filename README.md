@@ -32,8 +32,8 @@ admin@example.com
 Admin@123
 
 User account
-john@gmail.com
-123456
+yolko@mail44.com
+a123456785
 
 ## Running the Server
 
@@ -45,14 +45,14 @@ npm run dev
 npm start
 ```
 
-Server will run on `http://localhost:3005` (or configured PORT in .env)
+Server will run on `http://localhost:3000` (or configured PORT in .env)
 
 ## 📝 Swagger APi Doc
 http://localhost:3000/api-docs/
 
 
 ## 🧪 Testing
-
+สร้าง .env.test เพื่อสร้าง env ในการ test
 ```bash
 # Run all tests
 npm test
@@ -98,8 +98,8 @@ docker-compose logs -f db
 # Stop services
 docker-compose down
 
-# Rebuild and start
-docker-compose up -d --build
+# start a system
+docker compose up --build
 
 #Framework และ Database ที่เลือกพร้อมเหตุผล
 Node.js เพราะ Springboot ทำใน IntelliJ แล้วงง
