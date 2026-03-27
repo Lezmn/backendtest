@@ -37,7 +37,7 @@ const loginLimiter = rateLimit({
  *               - name
  *               - email
  *               - password
- *             properties:
+ *             properties: 
  *               name:
  *                 type: string
  *                 example: John Doe

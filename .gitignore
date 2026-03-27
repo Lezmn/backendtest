@@ -6,8 +6,7 @@ logs
 node_modules/
 
 # Environment Variables (ความลับ)
-.env
-.env.local
+env
 .env.test
 
 # Build output (ไฟล์ที่แปลงร่างแล้ว)
