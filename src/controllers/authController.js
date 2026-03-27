@@ -21,11 +21,37 @@ exports.login = async (req, res, next) => {
   }
 };
 
+// Refresh Access Token
+exports.refresh = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    const result = await authService.refreshAccessToken(refreshToken);
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Get Me (ดูข้อมูลตัวเอง)
 exports.getMe = async (req, res, next) => {
   try {
     const user = await authService.getMe(req.user.id);
     sendSuccess(res, user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Logout
+exports.logout = async (req, res, next) => {
+  try {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'No token provided' });
+    }
+
+    await authService.logout(token);
+    sendSuccess(res, { message: 'ออกจากระบบสำเร็จ' });
   } catch (err) {
     next(err);
   }

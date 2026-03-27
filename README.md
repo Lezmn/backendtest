@@ -77,7 +77,9 @@ DB_NAME=mydb
 
 # JWT
 JWT_SECRET=your-secret-key-here
-JWT_EXPIRES_IN=1d
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_SECRET=your-refresh-secret-key-here
+JWT_REFRESH_EXPIRES_IN=7d
 
 # Client
 CLIENT_URL=http://localhost:3005
@@ -98,8 +100,8 @@ docker-compose down
 
 # Rebuild and start
 docker-compose up -d --build
-```
-Framework และ Database ที่เลือกพร้อมเหตุผล
+
+#Framework และ Database ที่เลือกพร้อมเหตุผล
 Node.js เพราะ Springboot ทำใน IntelliJ แล้วงง
 Mysql เพราะ สามารถรันได้ผ่าน docker และเคยใช้เมื่อตอนปี 2
 

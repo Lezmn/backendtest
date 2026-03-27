@@ -15,7 +15,9 @@ exports.validateRegister = [
     .notEmpty().withMessage('Name is required'),
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email'),
+    .isEmail().withMessage('Invalid email')
+    .trim()
+    .customSanitizer((value) => value.toLowerCase()),
   body('password')
     .notEmpty().withMessage('Password is required')
     .isLength({ min: 6 }).withMessage('Password min 6 characters'),
@@ -26,7 +28,28 @@ exports.validateRegister = [
 exports.validateLogin = [
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email'),
+    .isEmail().withMessage('Invalid email')
+    .trim()
+    .customSanitizer((value) => value.toLowerCase()),
+  body('password')
+    .notEmpty().withMessage('Password is required'),
+  validate,
+];
+
+// Validate Refresh Token
+exports.validateRefresh = [
+  body('refreshToken')
+    .notEmpty().withMessage('Refresh token is required')
+    .isString().withMessage('Refresh token must be a string'),
+  validate,
+];
+
+exports.validateLogout = [
+  body('email')
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email')
+    .trim()
+    .customSanitizer((value) => value.toLowerCase()),
   body('password')
     .notEmpty().withMessage('Password is required'),
   validate,
@@ -38,6 +61,8 @@ exports.validateUpdateUser = [
     .notEmpty().withMessage('Name is required'),
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email'),
+    .isEmail().withMessage('Invalid email')
+    .trim()
+    .customSanitizer((value) => value.toLowerCase()),
   validate,
 ];

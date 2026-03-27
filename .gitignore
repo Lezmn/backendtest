@@ -1,0 +1,17 @@
+# Logs
+logs
+*.log
+
+# Dependencies (ไฟล์ไลบรารีขนาดใหญ่)
+node_modules/
+
+# Environment Variables (ความลับ)
+.env
+.env.local
+
+# Build output (ไฟล์ที่แปลงร่างแล้ว)
+dist/
+
+# IDE & System files (ไฟล์ขยะของระบบ)
+.vscode/
+.DS_Store
