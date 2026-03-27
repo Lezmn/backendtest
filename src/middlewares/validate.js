@@ -66,3 +66,12 @@ exports.validateUpdateUser = [
     .customSanitizer((value) => value.toLowerCase()),
   validate,
 ];
+
+// Validate Update User Status
+exports.validateUpdateUserStatus = [
+  body('is_active')
+    .notEmpty().withMessage('is_active is required')
+    .isBoolean().withMessage('is_active must be true or false')
+    .toBoolean(),
+  validate,
+];

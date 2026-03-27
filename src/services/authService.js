@@ -7,7 +7,6 @@ const ACCESS_SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
 const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
-const accessTokenBlacklist = new Map();
 
 exports.register = async ({ name, email, password }) => {
   const [exist] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
@@ -108,7 +107,6 @@ exports.logout = async (token) => {
 };
 
 exports.isBlacklisted = async (token) => {
-  await ensureBlacklistTable();
   await db.query('DELETE FROM token_blacklist WHERE expires_at <= NOW()');
 
   const [rows] = await db.query(

@@ -36,3 +36,15 @@ exports.remove = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateStatus = async (req, res, next) => {
+  try {
+    const user = await userService.updateStatus(
+      req.params.id,
+      req.body.is_active
+    );
+    sendSuccess(res, user);
+  } catch (err) {
+    next(err);
+  }
+};

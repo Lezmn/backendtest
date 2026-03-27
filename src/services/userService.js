@@ -40,10 +40,11 @@ exports.getAll = async ({
   return {
     rows,
     pagination: {
-      total,
-      page: Number(page),
-      limit: Number(limit),
+      currentPage: Number(page),
       totalPages: Math.ceil(total / limit),
+      totalItems: total,
+      itemsPerPage: Number(limit),
+      
     },
   };
 };
@@ -71,4 +72,20 @@ exports.update = async (id, { name, email }) => {
 exports.remove = async (id) => {
   await exports.getById(id);
   await db.query('DELETE FROM users WHERE id = ?', [id]);
+};
+
+exports.updateStatus = async (id, isActive) => {
+  await exports.getById(id);
+
+  await db.query('UPDATE users SET is_active = ? WHERE id = ?', [
+    isActive ? 1 : 0,
+    id,
+  ]);
+
+  const [rows] = await db.query(
+    'SELECT id, name, email, role, is_active, created_at FROM users WHERE id = ?',
+    [id]
+  );
+
+  return rows[0];
 };

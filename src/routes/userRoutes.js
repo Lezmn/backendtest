@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
-const { validateUpdateUser } = require('../middlewares/validate');
+const { validateUpdateUser,validateUpdateUserStatus} = require('../middlewares/validate');
 
 /**
  * @swagger
@@ -38,7 +38,7 @@ const { validateUpdateUser } = require('../middlewares/validate');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', protect, userController.getAll);
+router.get('/', protect,authorize('admin'),userController.getAll);
 
 /**
  * @swagger
@@ -60,7 +60,7 @@ router.get('/', protect, userController.getAll);
  *       404:
  *         description: ไม่พบ User
  */
-router.get('/:id', protect, userController.getById);
+router.get('/:id', protect, authorize('admin', 'user'), userController.getById);
 
 /**
  * @swagger
@@ -91,7 +91,43 @@ router.get('/:id', protect, userController.getById);
  *       200:
  *         description: อัปเดตสำเร็จ
  */
-router.put('/:id', protect, validateUpdateUser, userController.update);
+router.put('/:id', protect, authorize('admin', 'user'), validateUpdateUser, userController.update);
+
+/**
+ * @swagger
+ * /api/users/{id}/status:
+ *   patch:
+ *     summary: เปิด/ปิดการใช้งาน Account
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - is_active
+ *             properties:
+ *               is_active:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: อัปเดตสถานะสำเร็จ
+ *       403:
+ *         description: Admin เท่านั้น
+ *       404:
+ *         description: ไม่พบ User
+ */
+router.patch( '/:id/status',protect,authorize('admin'),validateUpdateUserStatus,userController.updateStatus);
 
 /**
  * @swagger
