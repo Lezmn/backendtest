@@ -7,9 +7,9 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: webdb
+      MYSQL_DATABASE: mydb
     ports:
-      - "3000:3306"
+      - "8000:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:

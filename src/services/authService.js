@@ -28,5 +28,14 @@ exports.login = async ({ email, password }) => {
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
 
-  return { token };
+  return { token }; 
+};
+
+exports.getMe = async (id) => {
+  const [rows] = await db.query(
+    'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
+    [id]
+  );
+  if (!rows.length) throw new AppError('User not found', 404);
+  return rows[0];
 };
