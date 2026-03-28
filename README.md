@@ -82,7 +82,7 @@ JWT_REFRESH_SECRET=your-refresh-secret-key-here
 JWT_REFRESH_EXPIRES_IN=7d
 
 # Client
-CLIENT_URL=http://localhost:3005
+CLIENT_URL=http://localhost:3000
 ```
 
 
