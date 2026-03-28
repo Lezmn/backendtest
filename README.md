@@ -100,8 +100,9 @@ docker-compose down
 
 # start a system
 docker compose up --build
+```
 
-#Framework และ Database ที่เลือกพร้อมเหตุผล
+## Framework และ Database ที่เลือกพร้อมเหตุผล
 Node.js เพราะ Springboot ทำใน IntelliJ แล้วงง
 Mysql เพราะ สามารถรันได้ผ่าน docker และเคยใช้เมื่อตอนปี 2
 
