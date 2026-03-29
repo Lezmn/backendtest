@@ -13,21 +13,21 @@ exports.protect = async (req, res, next) => {
   try {
     const blacklisted = await authService.isBlacklisted(token);
     if (blacklisted) {
-      return sendError(res, 'Token ถูกยกเลิกแล้ว กรุณา Login ใหม่', 401);
+      return sendError(res, 'Token is Invalid,Please Login', 401);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const isActive = await authService.isUserActive(decoded.id);
     if (!isActive) {
-      return sendError(res, 'บัญชีถูกออกจากระบบแล้ว กรุณา Login ใหม่', 401);
+      return sendError(res, 'Already Logged Out, please login again', 401);
     }
 
     req.user = decoded;
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
-      return sendError(res, 'บัญชีหมดเวลาการใช้งาน กรุณา Login ใหม่', 401);
+      return sendError(res, 'Account session has expired, please login again', 401);
     }
 
     next(err);
@@ -41,7 +41,7 @@ exports.authorize = (...roles) => (req, res, next) => {
   }
 
   if (!roles.includes(req.user.role)) {
-    return sendError(res, 'Forbidden', 403);
+    return sendError(res, 'No Access', 403);
   }
   next();
 };
@@ -57,6 +57,6 @@ exports.authorizeAdminOrSelf = (req, res, next) => {
     return next();
   }
 
-  return sendError(res, 'Forbidden', 403);
+  return sendError(res, 'No Access', 403);
 };
 

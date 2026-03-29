@@ -12,6 +12,6 @@ server.on('error', (err) => {
   console.error('Server error:', err.message);
   if (err.code === 'EADDRINUSE') {
     console.error(`Port ${PORT} is already in use`);
-  }
+  } 
   process.exit(1);
 });

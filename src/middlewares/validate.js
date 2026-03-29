@@ -2,6 +2,9 @@ const { body, validationResult } = require('express-validator');
 const db = require('../config/db');
 const { sendError } = require('../utils/response');
 
+// Validator ตรวจ Thai characters
+const isThai = (str) => /[\u0E00-\u0E7F]/.test(str);
+
 // Middleware เช็ค error จาก validation
 const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -28,12 +31,23 @@ const validate = (req, res, next) => {
 exports.validateRegister = [
   body('name')
     .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
+    .isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters')
+    .custom((value) => {
+  if (isThai(value)) throw new Error('Name cannot contain Thai characters');
+  return true;
+}),
   body('email')
     .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .trim()
     .customSanitizer((value) => value.toLowerCase())
+    .custom((value) => {
+      // ห้ามมีภาษาไทยใน email
+      if (isThai(value)) {
+        throw new Error('Email cannot contain Thai characters');
+      }
+      return true;
+    })
     .custom(async (value) => {
       const [rows] = await db.query('SELECT id FROM users WHERE email = ? LIMIT 1', [value]);
       if (rows.length) {
@@ -58,7 +72,14 @@ exports.validateLogin = [
     .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .trim()
-    .customSanitizer((value) => value.toLowerCase()),
+    .customSanitizer((value) => value.toLowerCase())
+    .custom((value) => {
+      // ห้ามมีภาษาไทยใน email
+      if (isThai(value)) {
+        throw new Error('Email cannot contain Thai characters');
+      }
+      return true;
+    }),
   body('password')
     .notEmpty().withMessage('Password is required'),
   validate,
@@ -78,7 +99,14 @@ exports.validateLogout = [
     .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .trim()
-    .customSanitizer((value) => value.toLowerCase()),
+    .customSanitizer((value) => value.toLowerCase())
+    .custom((value) => {
+      // ห้ามมีภาษาไทยใน email
+      if (isThai(value)) {
+        throw new Error('Email cannot contain Thai characters');
+      }
+      return true;
+    }),
   body('password')
     .notEmpty().withMessage('Password is required'),
   validate,
@@ -88,12 +116,23 @@ exports.validateLogout = [
 exports.validateUpdateUser = [
   body('name')
     .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters'),
+    .isLength({ min: 2, max: 100 }).withMessage('Name must be 2-100 characters')
+    .custom((value) => {
+      if (isThai(value)) throw new Error('Name cannot contain Thai characters');
+      return true;
+    }),
   body('email')
     .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
     .trim()
     .customSanitizer((value) => value.toLowerCase())
+    .custom((value) => {
+      // ห้ามมีภาษาไทยใน email
+      if (isThai(value)) {
+        throw new Error('Email cannot contain Thai characters');
+      }
+      return true;
+    })
     .custom(async (value, { req }) => {
       const [rows] = await db.query('SELECT id FROM users WHERE email = ? AND id <> ? LIMIT 1', [
         value,

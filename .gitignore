@@ -15,3 +15,5 @@ dist/
 # IDE & System files (ไฟล์ขยะของระบบ)
 .vscode/
 .DS_Store
+tests/
+*.log

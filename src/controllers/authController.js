@@ -51,7 +51,7 @@ exports.logout = async (req, res, next) => {
     }
 
     await authService.logout(token);
-    sendSuccess(res, { message: 'ออกจากระบบสำเร็จ' });
+    sendSuccess(res, { message: 'Logged out successfully' });
   } catch (err) {
     next(err);
   }

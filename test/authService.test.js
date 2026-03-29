@@ -70,7 +70,7 @@ describe('authService.register()', () => {
 // ════════════════════════════════════════════════════════
 describe('authService.login()', () => {
 
-  test('TC-03 | ✅ Login สำเร็จ — คืน token และ refreshToken', async () => {
+  test('TC-03 | ✅ Login สำเร็จ — คืน token, refreshToken และ user ที่ปลอดภัย', async () => {
     db.query
       .mockResolvedValueOnce([[mockUser]])                  // SELECT user
       .mockResolvedValueOnce([{}]);                         // UPDATE refresh_token
@@ -82,7 +82,21 @@ describe('authService.login()', () => {
 
     const result = await authService.login({ email: mockUser.email, password: 'Pass1234' });
 
-    expect(result).toEqual({ token: 'access-token-xxx', refreshToken: 'refresh-token-xxx' });
+    expect(result).toEqual({
+      token: 'access-token-xxx',
+      refreshToken: 'refresh-token-xxx',
+      user: {
+        id: mockUser.id,
+        name: mockUser.name,
+        email: mockUser.email,
+        role: mockUser.role,
+        is_active: 1,
+        created_at: mockUser.created_at,
+        updated_at: mockUser.updated_at,
+      },
+    });
+    expect(result.user).not.toHaveProperty('password');
+    expect(result.user).not.toHaveProperty('refresh_token');
     expect(bcrypt.compare).toHaveBeenCalled();
     expect(jwt.sign).toHaveBeenCalledTimes(2);
   });

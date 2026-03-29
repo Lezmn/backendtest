@@ -39,27 +39,43 @@ exports.register = async ({ name, email, password }) => {
 
 exports.login = async ({ email, password }) => {
   const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-  if (!rows.length) throw new AppError('Invalid credentials', 401);
+  if (!rows.length) throw new AppError('Invalid Email', 401);
 
-  const valid = await bcrypt.compare(password, rows[0].password);
-  if (!valid) throw new AppError('Invalid credentials', 401);
-    const accessToken = jwt.sign(
-    { id: rows[0].id, role: rows[0].role },
+  const user = rows[0];
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) throw new AppError('Invalid Password', 401);
+
+  const accessToken = jwt.sign(
+    { id: user.id, role: user.role },
     ACCESS_SECRET,
     { expiresIn: ACCESS_EXPIRES_IN }
   );
-    const refreshToken = jwt.sign(
-    { id: rows[0].id, type: 'refresh' },
+
+  const refreshToken = jwt.sign(
+    { id: user.id, type: 'refresh' },
     REFRESH_SECRET,
     { expiresIn: REFRESH_EXPIRES_IN }
   );
 
   await db.query(
     'UPDATE users SET is_active = 1, refresh_token = ? WHERE id = ?',
-    [refreshToken, rows[0].id]
+    [refreshToken, user.id]
   );
 
-  return { token: accessToken, refreshToken };
+  return {
+    token: accessToken,
+    refreshToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      is_active: 1,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    },
+  };
 };
 
 exports.refreshAccessToken = async (refreshToken) => {
@@ -95,7 +111,7 @@ exports.refreshAccessToken = async (refreshToken) => {
 
 exports.getMe = async (id) => {
   const [rows] = await db.query(
-    'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
+    'SELECT id, name, email, role, is_active, created_at, updated_at FROM users WHERE id = ?',
     [id]
   );
   if (!rows.length) throw new AppError('User not found', 404);

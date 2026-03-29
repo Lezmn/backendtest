@@ -7,17 +7,11 @@ const createTables = async (retries = 0) => {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       port: Number(process.env.DB_PORT || 3306),
     });
 
     try {
-      // สร้างฐานข้อมูล
-      await conn.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`);
-      console.log(`✓ Database ${process.env.DB_NAME} created or already exists`);
-
-      // เลือกฐานข้อมูล
-      await conn.query(`USE ${process.env.DB_NAME}`);
-
       // สร้างตาราง users ให้ตรงกับ schema ที่มีอยู่
       await conn.query(`
         CREATE TABLE IF NOT EXISTS users (
@@ -33,6 +27,17 @@ const createTables = async (retries = 0) => {
         )
       `);
       console.log('✓ Table users created or already exists');
+
+      await conn.query(`
+        CREATE TABLE IF NOT EXISTS token_blacklist (
+          id BIGINT PRIMARY KEY AUTO_INCREMENT,
+          token VARCHAR(1024) NOT NULL UNIQUE,
+          expires_at DATETIME NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          INDEX idx_token_blacklist_expires_at (expires_at)
+        )
+      `);
+      console.log('✓ Table token_blacklist created or already exists');
 
       console.log('\n✅ Migration completed successfully!');
     } finally {
