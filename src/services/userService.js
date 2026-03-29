@@ -1,5 +1,5 @@
 const AppError = require('../utils/AppError');
-const UserModel = require('../models/user.model');
+const UserModel = require('../models/usermodel');
 
 exports.getAll = async ({
   page = 1,
@@ -41,7 +41,15 @@ exports.getAll = async ({
 exports.getById = async (id) => {
   const [rows] = await UserModel.findById(id);
   if (!rows.length) throw new AppError('User not found', 404);
-  return rows[0];
+  return {
+    id:         rows[0].id,
+    name:       rows[0].name,
+    email:      rows[0].email,
+    role:       rows[0].role,
+    is_active:  rows[0].is_active,
+    created_at: rows[0].created_at,
+    updated_at: rows[0].updated_at,
+  };
 };
 
 exports.update = async (id, { name, email }) => {
@@ -60,5 +68,13 @@ exports.updateStatus = async (id, isActive) => {
   await exports.getById(id);
   await UserModel.updateStatus(id, isActive);
   const [rows] = await UserModel.findById(id);
-  return rows[0];
+  return {
+    id:         rows[0].id,
+    name:       rows[0].name,
+    email:      rows[0].email,
+    role:       rows[0].role,
+    is_active:  rows[0].is_active,
+    created_at: rows[0].created_at,
+    updated_at: rows[0].updated_at,
+  };
 };

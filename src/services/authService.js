@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const AppError = require('../utils/AppError');
-const UserModel = require('../models/user.model');
-const TokenBlacklistModel = require('../models/tokenBlacklist.model');
+const UserModel = require('../models/usermodel');
+const TokenBlacklistModel = require('../models/tokenblacklistmodel');
 
 const ACCESS_SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
@@ -34,6 +34,10 @@ exports.login = async ({ email, password }) => {
 
   const user = rows[0];
 
+  if (Number(user.is_active) !== 1) {
+    throw new AppError('User is deactivated', 403);
+  }
+
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new AppError('Invalid Password', 401);
 
@@ -59,7 +63,7 @@ exports.login = async ({ email, password }) => {
       name:       user.name,
       email:      user.email,
       role:       user.role,
-      is_active:  1,
+      is_active:  user.is_active,
       created_at: user.created_at,
       updated_at: user.updated_at,
     },
@@ -76,11 +80,10 @@ exports.refreshAccessToken = async (refreshToken) => {
   }
 
   const [rows] = await UserModel.findById(decoded.id);
-
   if (!rows.length) throw new AppError('User not found', 404);
   if (rows[0].refresh_token !== refreshToken) throw new AppError('Refresh token mismatch', 401);
-  if (rows[0].is_active !== 1) throw new AppError('User is logged out', 401);
-
+  if (Number(rows[0].is_active) !== 1) throw new AppError('User is logged out', 401);
+  
   const accessToken = jwt.sign(
     { id: rows[0].id, role: rows[0].role },
     ACCESS_SECRET,
@@ -93,7 +96,15 @@ exports.refreshAccessToken = async (refreshToken) => {
 exports.getMe = async (id) => {
   const [rows] = await UserModel.findById(id);
   if (!rows.length) throw new AppError('User not found', 404);
-  return rows[0];
+  return {
+    id:         rows[0].id,
+    name:       rows[0].name,
+    email:      rows[0].email,
+    role:       rows[0].role,
+    is_active:  rows[0].is_active,
+    created_at: rows[0].created_at,
+    updated_at: rows[0].updated_at,
+  };
 };
 
 exports.logout = async (token) => {
@@ -117,5 +128,5 @@ exports.isBlacklisted = async (token) => {
 exports.isUserActive = async (userId) => {
   const [rows] = await UserModel.findByIdActive(userId);
   if (!rows.length) return false;
-  return rows[0].is_active === 1;
+  return Number(rows[0].is_active) === 1;
 };

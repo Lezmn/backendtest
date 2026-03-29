@@ -15,7 +15,7 @@ const createAdminUser = async () => {
     // ตรวจสอบว่า admin มีอยู่หรือไม่
     const [existing] = await conn.execute(
       'SELECT id FROM users WHERE email = ? AND role = ?',
-      ['admin@example.com', 'admin1']
+      ['admin@example.com', 'admin']
     );
 
     if (existing.length) {

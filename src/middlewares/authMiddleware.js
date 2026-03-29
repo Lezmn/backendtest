@@ -20,7 +20,7 @@ exports.protect = async (req, res, next) => {
 
     const isActive = await authService.isUserActive(decoded.id);
     if (!isActive) {
-      return sendError(res, 'Already Logged Out, please login again', 401);
+      return sendError(res, 'Account is deactivated', 401);
     }
 
     req.user = decoded;

@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand --forceExit",
-    "dev": "nodemon index.js",
+    "dev": "nodemon -L index.js",
     "start": "node index.js",
     "migrate": "node migrate/migrate.js",
     "seed": "node seeds/seed.js"

@@ -7,7 +7,7 @@ const UserModel = {
 
   findById: (id) =>
     db.query(
-      'SELECT id, name, email, role, is_active, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, name, email, role, is_active, created_at, updated_at, refresh_token FROM users WHERE id = ? LIMIT 1',
       [id]
     ),
 
@@ -25,7 +25,7 @@ const UserModel = {
 
   getAll: ({ where, params, safeSort, safeOrder, limit, offset }) =>
     db.query(
-      `SELECT id, name, email, role, created_at
+      `SELECT id, name, email, role, is_active, created_at, updated_at
        FROM users
        ${where}
        ORDER BY ${safeSort} ${safeOrder}
@@ -50,7 +50,7 @@ const UserModel = {
 
   updateRefreshToken: (id, refreshToken) =>
     db.query(
-      'UPDATE users SET is_active = 1, refresh_token = ? WHERE id = ?',
+      'UPDATE users SET refresh_token = ? WHERE id = ?',
       [refreshToken, id]
     ),
 
