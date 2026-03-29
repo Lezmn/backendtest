@@ -1,5 +1,5 @@
-const db = require('../config/db');
 const AppError = require('../utils/AppError');
+const UserModel = require('../models/user.model');
 
 exports.getAll = async ({
   page = 1,
@@ -10,10 +10,11 @@ exports.getAll = async ({
   order = 'desc',
 }) => {
   const offset = (page - 1) * limit;
-  const allowedSort = ['created_at', 'name', 'email'];
+
+  const allowedSort  = ['created_at', 'name', 'email'];
   const allowedOrder = ['asc', 'desc'];
-  const safeSort = allowedSort.includes(sort) ? sort : 'created_at';
-  const safeOrder = allowedOrder.includes(order) ? order : 'desc';
+  const safeSort     = allowedSort.includes(sort)   ? sort  : 'created_at';
+  const safeOrder    = allowedOrder.includes(order)  ? order : 'desc';
 
   let where = 'WHERE name LIKE ?';
   const params = [`%${search}%`];
@@ -23,73 +24,41 @@ exports.getAll = async ({
     params.push(role);
   }
 
-  const [rows] = await db.query(
-    `SELECT id, name, email, role, created_at
-     FROM users
-     ${where}
-     ORDER BY ${safeSort} ${safeOrder}
-     LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
-  );
-
-  const [[{ total }]] = await db.query(
-    `SELECT COUNT(*) as total FROM users ${where}`,
-    params
-  );
+  const [rows]         = await UserModel.getAll({ where, params, safeSort, safeOrder, limit, offset });
+  const [[{ total }]]  = await UserModel.countAll({ where, params });
 
   return {
     rows,
     pagination: {
       currentPage: Number(page),
-      totalPages: Math.ceil(total / limit),
-      totalItems: total,
+      totalPages:  Math.ceil(total / limit),
+      totalItems:  total,
       itemsPerPage: Number(limit),
     },
   };
 };
 
 exports.getById = async (id) => {
-  const [rows] = await db.query(
-    'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
-    [id]
-  );
-
+  const [rows] = await UserModel.findById(id);
   if (!rows.length) throw new AppError('User not found', 404);
   return rows[0];
 };
 
 exports.update = async (id, { name, email }) => {
   await exports.getById(id);
-  await db.query('UPDATE users SET name = ?, email = ? WHERE id = ?', [
-    name,
-    email,
-    id,
-  ]);
+  await UserModel.update(id, name, email);
   return exports.getById(id);
 };
 
 exports.remove = async (id) => {
-  await exports.getById(id);
-  const [rows] = await db.query(
-    'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
-    [id]
-  );
-  await db.query('DELETE FROM users WHERE id = ?', [id]);
-  return { ...rows[0], message: 'User deleted successfully' };
+  const user = await exports.getById(id);
+  await UserModel.deleteById(id);
+  return { ...user, message: 'User deleted successfully' };
 };
 
 exports.updateStatus = async (id, isActive) => {
   await exports.getById(id);
-
-  await db.query('UPDATE users SET is_active = ? WHERE id = ?', [
-    isActive ? 1 : 0,
-    id,
-  ]);
-
-  const [rows] = await db.query(
-    'SELECT id, name, email, role, is_active, created_at FROM users WHERE id = ?',
-    [id]
-  );
-
+  await UserModel.updateStatus(id, isActive);
+  const [rows] = await UserModel.findById(id);
   return rows[0];
 };
