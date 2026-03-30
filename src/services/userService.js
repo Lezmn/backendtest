@@ -7,7 +7,7 @@ exports.getAll = async ({
   search = '',
   role = '',
   sort = 'createdAt',
-  order = 'desc',
+  order = 'asc',
 }) => {
   const offset = (page - 1) * limit;
 
