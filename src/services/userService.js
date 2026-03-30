@@ -6,15 +6,23 @@ exports.getAll = async ({
   limit = 10,
   search = '',
   role = '',
-  sort = 'created_at',
+  sort = 'createdAt',
   order = 'desc',
 }) => {
   const offset = (page - 1) * limit;
 
+  // Convert camelCase to snake_case
+  const sortMap = {
+    createdAt: 'created_at',
+    name: 'name',
+    email: 'email',
+  };
+
   const allowedSort  = ['created_at', 'name', 'email'];
   const allowedOrder = ['asc', 'desc'];
-  const safeSort     = allowedSort.includes(sort)   ? sort  : 'created_at';
-  const safeOrder    = allowedOrder.includes(order)  ? order : 'desc';
+  const mappedSort   = sortMap[sort] || sort;
+  const safeSort     = allowedSort.includes(mappedSort) ? mappedSort : 'created_at';
+  const safeOrder    = allowedOrder.includes(order) ? order : 'desc';
 
   let where = 'WHERE name LIKE ?';
   const params = [`%${search}%`];

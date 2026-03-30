@@ -24,17 +24,51 @@ const { validateUpdateUser,validateUpdateUserStatus} = require('../middlewares/v
  *         name: page
  *         schema:
  *           type: integer
+ *           default: 1
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *           default: 10
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
+ *           description: ค้นหาจากชื่อ
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           description: กรองตามบทบาท (admin, user)
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *           enum: [createdAt, name, email]
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           default: desc
+ *           enum: [asc, desc]
  *     responses:
  *       200:
  *         description: สำเร็จ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     rows:
+ *                       type: array
+ *                     pagination:
+ *                       type: object
  *       401:
  *         description: Unauthorized
  */
